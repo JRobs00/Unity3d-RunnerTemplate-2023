@@ -14,9 +14,9 @@ namespace HyperCasual.Runner
     {
         const string k_PlayerTag = "Player";
         
-        void OnTriggerEnter(Collider col)
+        void OnCollisionEnter(Collision collision)
         {
-            if (col.CompareTag(k_PlayerTag))
+            if (collision.collider.CompareTag(k_PlayerTag))
             {
                 GameManager.Instance.Win();
             }

@@ -15,9 +15,9 @@ namespace HyperCasual.Core
         [SerializeField]
         AbstractGameEvent m_Event;
 
-        void OnTriggerEnter(Collider col)
+        void OnCollisionEnter(Collision collision)
         {
-            if (col.CompareTag(k_PlayerTag))
+            if (collision.collider.CompareTag(k_PlayerTag))
             {
                 if (m_Event != null)
                 {

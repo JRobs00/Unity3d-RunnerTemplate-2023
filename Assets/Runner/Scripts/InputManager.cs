@@ -20,6 +20,7 @@ namespace HyperCasual.Runner
 
         [SerializeField]
         float m_InputSensitivity = 1.5f;
+        float k_InputSensitivity = 1.5f;
 
         bool m_HasInput;
         Vector3 m_InputPosition;
@@ -46,6 +47,9 @@ namespace HyperCasual.Runner
             EnhancedTouchSupport.Disable();
         }
 
+        // 28/02/2025 AI-Tag
+        // This was created with assistance from Muse, a Unity Artificial Intelligence product
+
         void Update()
         {
             if (PlayerController.Instance == null)
@@ -69,22 +73,25 @@ namespace HyperCasual.Runner
                 m_HasInput = false;
             }
 #else
-            if (Touch.activeTouches.Count > 0)
-            {
-                m_InputPosition = Touch.activeTouches[0].screenPosition;
+    if (Touch.activeTouches.Count > 0)
+    {
+        m_InputPosition = Touch.activeTouches[0].screenPosition;
 
-                if (!m_HasInput)
-                {
-                    m_PreviousInputPosition = m_InputPosition;
-                }
-                
-                m_HasInput = true;
-            }
-            else
-            {
-                m_HasInput = false;
-            }
+        if (!m_HasInput)
+        {
+            m_PreviousInputPosition = m_InputPosition;
+        }
+        
+        m_HasInput = true;
+    }
+    else
+    {
+        m_HasInput = false;
+    }
 #endif
+
+            // Handle keyboard input
+            HandleKeyboardInput();
 
             if (m_HasInput)
             {
@@ -93,11 +100,36 @@ namespace HyperCasual.Runner
             }
             else
             {
-                PlayerController.Instance.CancelMovement();
+                PlayerController.Instance.CancelMouseMovement();
             }
 
             m_PreviousInputPosition = m_InputPosition;
         }
+
+        void HandleKeyboardInput()
+        {
+            bool hasKeyboardInput = false;
+            float deltaPosition = 0f;
+
+            if (Keyboard.current.leftArrowKey.isPressed)
+            {
+                deltaPosition = -k_InputSensitivity * Time.deltaTime;
+                hasKeyboardInput = true;
+            }
+            else if (Keyboard.current.rightArrowKey.isPressed)
+            {
+                deltaPosition = k_InputSensitivity * Time.deltaTime;
+                hasKeyboardInput = true;
+            }
+
+            if (hasKeyboardInput)
+            {
+                PlayerController.Instance.SetDeltaPositionKeyboard(deltaPosition);
+            }
+            else if (!hasKeyboardInput)
+            {
+                PlayerController.Instance.CancelKeyboardMovement();
+            }
+        }
     }
 }
-

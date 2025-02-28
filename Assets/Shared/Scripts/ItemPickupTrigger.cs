@@ -26,9 +26,9 @@ namespace HyperCasual.Gameplay
         /// </summary>
         public int m_Count;
         
-        void OnTriggerEnter(Collider col)
+        void OnCollisionEnter(Collision collision)
         {
-            if (!col.CompareTag(m_PlayerTag)) 
+            if (!collision.collider.CompareTag(m_PlayerTag)) 
                 return;
             
             m_Event.Count = m_Count;

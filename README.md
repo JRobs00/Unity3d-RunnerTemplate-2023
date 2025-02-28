@@ -90,3 +90,8 @@ There are two types of currencies in the game: Gold and XP
 ### Unity Ads package
 
 Unity Ads integration is built in to help you create a monetizable game. If you’re looking to build a revenue-generating mobile game, the runner template is a great place to start, and a good way to learn how to use the Unity Ads SDK.
+
+
+Sources Used:
+
+AllSky Free - 10 Sky / Skybox Set - https://assetstore.unity.com/packages/2d/textures-materials/sky/allsky-free-10-sky-skybox-set-146014

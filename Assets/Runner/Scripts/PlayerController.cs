@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace HyperCasual.Runner
 {
@@ -60,8 +62,10 @@ namespace HyperCasual.Runner
         Transform m_Transform;
         Vector3 m_StartPosition;
         bool m_HasInput;
+        bool k_HasInput;
         float m_MaxXPosition;
         float m_XPos;
+        float k_XPos;
         float m_ZPos;
         float m_TargetPosition;
         float m_Speed;
@@ -102,6 +106,13 @@ namespace HyperCasual.Runner
         /// <summary> The player's maximum X position. </summary>
         public float MaxXPosition => m_MaxXPosition;
 
+        public float jumpForce = 5f;  // Adjust this value to change jump height
+        public float fallMultiplier = 2.5f;
+        
+
+        private Rigidbody rb;
+        private bool isGrounded;
+
         void Awake()
         {
             if (s_Instance != null && s_Instance != this)
@@ -113,6 +124,11 @@ namespace HyperCasual.Runner
             s_Instance = this;
 
             Initialize();
+        }
+
+        void Start()
+        {
+            rb = GetComponent<Rigidbody>();
         }
 
         /// <summary>
@@ -211,6 +227,7 @@ namespace HyperCasual.Runner
             if (m_MaxXPosition == 0.0f)
             {
                 Debug.LogError("Player cannot move because SetMaxXPosition has never been called or Level Width is 0. If you are in the LevelEditor scene, ensure a level has been loaded in the LevelEditor Window!");
+                return;
             }
 
             float fullWidth = m_MaxXPosition * 2.0f;
@@ -219,12 +236,41 @@ namespace HyperCasual.Runner
             m_HasInput = true;
         }
 
+        // 28/02/2025 AI-Tag
+        // This was created with assistance from Muse, a Unity Artificial Intelligence product
+
+        public void SetDeltaPositionKeyboard(float normalizedDeltaPosition)
+        {
+            if (m_MaxXPosition == 0.0f)
+            {
+                Debug.LogError("Player cannot move because SetMaxXPosition has never been called or Level Width is 0. If you are in the LevelEditor scene, ensure a level has been loaded in the LevelEditor Window!");
+                return;
+            }
+
+            // Calculate the intended position shift
+            float positionShift = m_MaxXPosition * 2.0f * normalizedDeltaPosition;
+
+            // Update the target position immediately
+            m_TargetPosition += positionShift;
+
+            // Clamp to ensure it stays within the boundaries
+            m_TargetPosition = Mathf.Clamp(m_TargetPosition, -m_MaxXPosition, m_MaxXPosition);
+
+            // Indicate that input has been processed
+            k_HasInput = true;
+        }
+
         /// <summary>
         /// Stops player movement
         /// </summary>
-        public void CancelMovement()
+        public void CancelMouseMovement()
         {
             m_HasInput = false;
+        }
+
+        public void CancelKeyboardMovement()
+        {
+            k_HasInput = false;
         }
 
         /// <summary>
@@ -250,14 +296,53 @@ namespace HyperCasual.Runner
             m_LastPosition = m_Transform.position;
 
             m_HasInput = false;
+            k_HasInput = false;
 
             ResetSpeed();
             ResetScale();
         }
 
+        void Jump()
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
+        // 28/02/2025 AI-Tag
+        // This was created with assistance from Muse, a Unity Artificial Intelligence product
+
+
+        void OnCollisionEnter(Collision collision)
+        {
+            // Simple ground check
+            if (collision.gameObject.CompareTag("Ground"))
+            {
+                isGrounded = true;
+            }
+        }
+
+        void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("Ground"))
+            {
+                isGrounded = false;
+            }
+        }
+
+
         void Update()
         {
             float deltaTime = Time.deltaTime;
+
+            if (isGrounded && (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current?.buttonSouth.wasPressedThisFrame == true))
+            {
+                Jump();
+            }
+
+            // Apply additional gravity when falling
+            if (rb.linearVelocity.y < 0)
+            {
+                rb.linearVelocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            }
 
             // Update Scale
 
@@ -288,7 +373,7 @@ namespace HyperCasual.Runner
 
             m_ZPos += speed;
 
-            if (m_HasInput)
+            if (m_HasInput || k_HasInput)
             {
                 float horizontalSpeed = speed * m_HorizontalSpeedFactor;
 

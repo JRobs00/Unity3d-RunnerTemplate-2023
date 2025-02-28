@@ -21,7 +21,9 @@ namespace HyperCasual.Core
             {
                 if (s_Instance == null)
                 {
-                    s_Instance = FindObjectOfType<T>();
+                    // Use the preferred method for finding objects in the current version of Unity
+                    s_Instance = FindAnyObjectByType<T>();
+
                     if (s_Instance == null)
                     {
                         GameObject obj = new GameObject();
@@ -29,6 +31,7 @@ namespace HyperCasual.Core
                         s_Instance = obj.AddComponent<T>();
                     }
                 }
+
 
                 return s_Instance;
             }

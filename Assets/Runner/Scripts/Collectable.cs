@@ -45,9 +45,9 @@ namespace HyperCasual.Runner
             m_Renderers = gameObject.GetComponentsInChildren<Renderer>();
         }
 
-        void OnTriggerEnter(Collider col)
+        void OnCollisionEnter(Collision collision)
         {
-            if (col.CompareTag(k_PlayerTag) && !m_Collected)
+            if (collision.collider.CompareTag(k_PlayerTag) && !m_Collected)
             {
                 Collect();
             }

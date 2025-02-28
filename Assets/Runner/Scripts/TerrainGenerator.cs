@@ -10,6 +10,9 @@ namespace HyperCasual.Runner
     /// </summary>
     public class TerrainGenerator : MonoBehaviour
     {
+        const string GroundTag = "Ground";
+        const int GroundLayer = 12;
+
         /// <summary>
         /// Contains all the measurements needed for the 
         /// TerrainGenerator to create a new piece of Terrain.
@@ -277,10 +280,14 @@ namespace HyperCasual.Runner
             }
 
             terrainGameObject = new GameObject("Terrain");
+            terrainGameObject.tag = GroundTag;
+            terrainGameObject.layer = GroundLayer;
             MeshFilter meshFilter = terrainGameObject.AddComponent<MeshFilter>();
             meshFilter.sharedMesh = mesh;
             MeshRenderer meshRenderer = terrainGameObject.AddComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = terrainMaterial;
+            BoxCollider boxCollider = terrainGameObject.AddComponent<BoxCollider>();
+            boxCollider.providesContacts = true;
         }
     }
 }
